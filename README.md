@@ -2,7 +2,7 @@
 
 这个项目把「给一个链接，快速、正确地保存到本地」做成了一条命令。它自动判断内容类型，选择最合适的引擎，复用本机代理，支持断点续传、去重归档和下载历史。
 
-当前版本：**v2.0.0**（2026-11-02）。版本记录见 `CHANGELOG.md`，下一版规划见 `ROADMAP.md`。
+当前版本：**v2.0.1**（2026-11-02）。版本记录见 `CHANGELOG.md`，下一版规划见 `ROADMAP.md`。
 
 ## 从仓库重建
 
@@ -27,7 +27,7 @@ powershell -ExecutionPolicy Bypass -File .\setup.ps1 -Check
 
 ## 版本管理
 
-- 主分支 `main`；当前提交对应标签 `v2.0.0`。
+- 主分支 `main`；当前提交对应标签 `v2.0.1`。
 - 每次可交付的迭代更新 `CHANGELOG.md` 并打语义化版本标签。
 - 远程仓库：<https://github.com/Linxuans/universal_download>；规划见 `ROADMAP.md`。
 

@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 semantic versioning.
 
+## [2.0.1] - 2026-11-02
+
+### Fixed
+- Chinese-only goals such as 「我想自己开发一个游戏」 and 「写小说」 now map to
+  English search terms (`game`, `novel`, `writing`, `develop`); previously the
+  query core was empty and only plugins matched.
+- Code-search skills inside large monorepos are no longer rejected by the
+  300 MB repo-size guard when the exact `SKILL.md` path is known.
+- English term matching uses word boundaries, so `book` no longer matches
+  `workbook` or `notebook`.
+- MCP servers get a small ranking boost when the goal explicitly asks for MCP.
+- Code-search rate-limit failures are reported instead of silently yielding zero
+  skill results.
+
 ## [2.0.0] - 2026-11-02
 
 ### Added

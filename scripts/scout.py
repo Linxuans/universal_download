@@ -47,6 +47,10 @@ PLUGIN_HINTS = ("dsh", "deepseek harness", "deepseek-harness", "dsh-plugin")
 
 SYNONYMS = {
     "下载": ["download", "fetch", "save"],
+    "游戏": ["game", "gaming", "gamedev", "unity", "godot", "unreal"],
+    "小说": ["novel", "fiction", "story", "writing", "book"],
+    "写作": ["writing", "author", "content"],
+    "开发": ["develop", "development", "build", "coding"],
     "视频": ["video", "movie", "media"],
     "音频": ["audio", "sound", "music"],
     "图片": ["image", "photo", "picture", "gallery"],
@@ -105,6 +109,8 @@ ACTIONS = {
     "制作": ["create", "make", "build"],
     "自动化": ["automate", "automation", "workflow"],
     "通知": ["notify", "notification", "alert"],
+    "开发": ["develop", "build", "create"],
+    "写": ["write", "writing", "author"],
 }
 
 ENTITIES = {
@@ -311,6 +317,14 @@ def has_strong_match(profile: dict, *texts: str) -> bool:
     return action_hit or not actions
 
 
+def term_in(term: str, blob: str) -> bool:
+    if not term:
+        return False
+    if re.fullmatch(r"[a-z0-9+#._-]+", term):
+        return re.search(r"(?<![a-z0-9])" + re.escape(term) + r"(?![a-z0-9])", blob) is not None
+    return term in blob
+
+
 def relevance(terms: list[str], *texts: str) -> float:
     if not terms:
         return 0.0
@@ -319,7 +333,7 @@ def relevance(terms: list[str], *texts: str) -> float:
         return 0.0
     hits = 0.0
     for term in terms:
-        if term in blob:
+        if term_in(term, blob):
             hits += 1.0
         elif len(term) >= 4 and term[:4] in blob:
             hits += 0.4
@@ -614,7 +628,7 @@ def local_relevance(terms: list[str], *texts: str) -> float:
     if not terms:
         return 0.0
     blob = normalize(" ".join(texts))
-    hits = sum(1 for term in terms if term in blob)
+    hits = sum(1 for term in terms if term_in(term, blob))
     return min(1.0, hits / max(2, min(len(terms), 4)))
 
 
@@ -706,7 +720,7 @@ def evaluate_skill_repo(
     if not full_name or repo.get("archived"):
         return []
     size = int(repo.get("size") or 0)
-    if size > 300_000:
+    if size > 300_000 and not known_paths:
         return []
     owner = (repo.get("owner") or {}).get("login") or full_name.split("/")[0]
     license_name = ((repo.get("license") or {}).get("spdx_id") or "").strip()
@@ -837,9 +851,17 @@ def english_terms(terms: list[str]) -> list[str]:
     return [t for t in terms if re.search(r"[a-zA-Z]", t)][:6]
 
 
+def query_terms(terms: list[str]) -> str:
+    english = english_terms(terms)
+    if english:
+        return " ".join(english[:4])
+    chinese = [t for t in terms if re.search(r"[\u4e00-\u9fff]", t)]
+    return " ".join(chinese[:3])
+
+
 def search_skills(terms: list[str], gh: GitHub, token: str | None, warnings: list[str], profile: dict) -> tuple[list[Candidate], list[str]]:
     queries: list[str] = []
-    core = " ".join(english_terms(terms)[:4])
+    core = query_terms(terms)
     if core:
         queries += [
             f'{core} skill in:name,description,readme',
@@ -868,11 +890,14 @@ def search_skills(terms: list[str], gh: GitHub, token: str | None, warnings: lis
 
     # Code search finds small but exact skills that repository search misses.
     if token and core:
-        code_query = " ".join(english_terms(terms)[:3])
+        code_query = query_terms(terms)
+        queries.append(f"code:filename:SKILL.md {code_query}")
         try:
             items = gh.search_code(f"filename:SKILL.md {code_query}", per_page=MAX_CODE_RESULTS)
         except ScoutError:
             items = []
+        if not items:
+            warnings.append("GitHub 代码搜索未返回结果（可能触发 10 次/分钟限流）")
         seen_repos = {c.extra.get("repo") for c in candidates}
         for item in items[:MAX_CODE_RESULTS]:
             repo_info = item.get("repository") or {}

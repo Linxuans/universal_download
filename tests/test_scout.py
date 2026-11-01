@@ -32,6 +32,16 @@ class ScoutTextTests(unittest.TestCase):
         self.assertFalse(scout.has_strong_match(profile, "video-generation", "generate video from a prompt"))
         self.assertTrue(scout.has_strong_match(profile, "bilibili-download", "download and extract audio from Bilibili video"))
 
+    def test_game_and_novel_goals_have_english_terms(self) -> None:
+        self.assertIn("game", scout.goal_terms("我想自己开发一个游戏"))
+        self.assertIn("novel", scout.goal_terms("写小说"))
+        self.assertIn("develop", scout.goal_profile("我想自己开发一个游戏")["actions"])
+        self.assertIn("write", scout.goal_profile("写小说")["actions"])
+
+    def test_term_boundaries_avoid_workbook_false_positive(self) -> None:
+        self.assertFalse(scout.term_in("book", "excel workbook"))
+        self.assertTrue(scout.term_in("book", "a book about writing"))
+
     def test_parse_frontmatter(self) -> None:
         text = '---\nname: demo-skill\ndescription: "A demo"\nwhenToUse: |\n  when testing\n---\n\n# Body\n'
         meta = scout.parse_frontmatter(text)

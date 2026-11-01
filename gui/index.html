@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>下载工作台</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <svg class="sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-logo" viewBox="0 0 24 24"><path d="M12 3v10m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></symbol>
+    <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9h4M17 9h4M3 15h4M17 15h4"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 20"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></symbol>
+    <symbol id="i-article" viewBox="0 0 24 24"><path d="M5 4h14a1 1 0 0 1 1 1v15l-4-2-4 2-4-2-4 2V5a1 1 0 0 1 1-1Z"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
+    <symbol id="i-magnet" viewBox="0 0 24 24"><path d="M6 4v8a6 6 0 0 0 12 0V4"/><path d="M6 8h4M14 8h4"/><path d="M6 4h4M14 4h4"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4v-.2a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="7" y="4" width="10" height="4" rx="1"/><path d="M9 4H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-4"/><path d="M8 12h8M8 16h5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01"/><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M9 7V4h6v3"/></symbol>
+  </svg>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"><svg class="icon"><use href="#i-logo"/></svg></div>
+        <div class="brand-text"><strong>FetchDesk</strong><span>下载工作台</span></div>
+      </div>
+
+      <nav class="nav" aria-label="主导航">
+        <button class="nav-item active" data-view="download"><svg class="icon"><use href="#i-download"/></svg><span>下载</span></button>
+        <button class="nav-item" data-view="tasks"><svg class="icon"><use href="#i-film"/></svg><span>任务</span><em id="taskBadge" class="badge hidden">0</em></button>
+        <button class="nav-item" data-view="history"><svg class="icon"><use href="#i-history"/></svg><span>历史</span></button>
+        <button class="nav-item" data-view="settings"><svg class="icon"><use href="#i-settings"/></svg><span>设置</span></button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="status-card">
+          <div class="status-head"><span class="pulse-dot" id="engineDot"></span><span id="engineLabel">正在检查引擎</span></div>
+          <div class="engine-list" id="engineList"></div>
+        </div>
+        <div class="proxy-line"><svg class="icon"><use href="#i-link"/></svg><span id="proxyLabel">代理未检测</span></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">下载</h1>
+          <p id="pageSub">把链接变成文件，引擎自动选择。</p>
+        </div>
+        <div class="top-actions">
+          <button id="themeBtn" class="icon-btn" title="切换主题" aria-label="切换主题"><svg class="icon"><use href="#i-sun"/></svg></button>
+          <button id="openFolderBtn" class="btn ghost"><svg class="icon"><use href="#i-folder"/></svg>打开目录</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="view-download" class="view active">
+          <div class="hero card">
+            <div class="hero-glow"></div>
+            <div class="hero-top">
+              <label class="field-label" for="urlInput">链接</label>
+              <span class="hint" id="urlHint">支持 YouTube、B 站、Pixiv、X、文章、直链、磁力</span>
+            </div>
+            <div class="url-row">
+              <svg class="icon input-icon"><use href="#i-link"/></svg>
+              <input id="urlInput" type="text" placeholder="粘贴视频、图集、文章或文件链接…" autocomplete="off" spellcheck="false" autofocus>
+              <button id="pasteBtn" class="btn ghost small"><svg class="icon"><use href="#i-clipboard"/></svg>粘贴</button>
+            </div>
+
+            <div class="mode-row" id="modeChips" role="group" aria-label="下载类型">
+              <button class="chip active" data-mode="auto"><svg class="icon"><use href="#i-download"/></svg>自动</button>
+              <button class="chip" data-mode="video"><svg class="icon"><use href="#i-film"/></svg>视频</button>
+              <button class="chip" data-mode="audio"><svg class="icon"><use href="#i-music"/></svg>音频</button>
+              <button class="chip" data-mode="images"><svg class="icon"><use href="#i-image"/></svg>图片</button>
+              <button class="chip" data-mode="file"><svg class="icon"><use href="#i-file"/></svg>文件</button>
+              <button class="chip" data-mode="article"><svg class="icon"><use href="#i-article"/></svg>文章</button>
+              <button class="chip" data-mode="torrent"><svg class="icon"><use href="#i-magnet"/></svg>种子</button>
+            </div>
+
+            <div class="hero-actions">
+              <div class="inline-field">
+                <label for="quality">画质</label>
+                <select id="quality">
+                  <option value="best">最佳</option>
+                  <option value="2160">4K</option>
+                  <option value="1440">2K</option>
+                  <option value="1080">1080p</option>
+                  <option value="720">720p</option>
+                  <option value="480">480p</option>
+                  <option value="audio">仅音频</option>
+                </select>
+              </div>
+              <div class="inline-field" id="audioFormatWrap" hidden>
+                <label for="audioFormat">格式</label>
+                <select id="audioFormat"><option>mp3</option><option>m4a</option><option>opus</option><option>flac</option></select>
+              </div>
+              <div class="spacer"></div>
+              <button id="startBtn" class="btn primary lg"><svg class="icon"><use href="#i-download"/></svg>开始下载</button>
+            </div>
+
+            <button class="advanced-toggle" id="advToggle" aria-expanded="false">
+              <svg class="icon chevron"><use href="#i-chevron"/></svg>更多选项
+            </button>
+            <div class="advanced" id="advanced" hidden>
+              <div class="adv-grid">
+                <label class="field"><span>保存到</span><div class="with-btn"><input id="outDir" placeholder="默认 downloads/日期"><button id="browseOut" class="icon-btn sm" title="选择文件夹"><svg class="icon"><use href="#i-folder"/></svg></button></div></label>
+                <label class="field"><span>文件名</span><input id="outName" placeholder="留空自动命名"></label>
+                <label class="field"><span>限速</span><input id="limitRate" placeholder="例如 2M，留空不限"></label>
+                <label class="field"><span>Cookie 浏览器</span><select id="browser"><option value="edge">Edge</option><option value="chrome">Chrome</option><option value="firefox">Firefox</option><option value="brave">Brave</option></select></label>
+                <label class="check"><input type="checkbox" id="optCookies"><span>读取浏览器登录态</span></label>
+                <label class="check"><input type="checkbox" id="optPlaylist"><span>下载整个播放列表</span></label>
+                <label class="check"><input type="checkbox" id="optSubs"><span>下载并嵌入字幕</span></label>
+                <label class="check"><input type="checkbox" id="optForce"><span>忽略归档并覆盖</span></label>
+                <label class="check"><input type="checkbox" id="optFlat"><span>不按日期建子目录</span></label>
+              </div>
+              <p class="fineprint"><svg class="icon"><use href="#i-alert"/></svg>Cookie 是登录凭证，只在你授权的站点使用；DRM/付费墙内容不会被绕过。</p>
+            </div>
+          </div>
+
+          <div class="quick-grid">
+            <button class="quick-card" data-quick="video"><span class="quick-icon amber"><svg class="icon"><use href="#i-film"/></svg></span><span><strong>视频 / 播放列表</strong><small>YouTube、B 站、Vimeo…</small></span></button>
+            <button class="quick-card" data-quick="images"><span class="quick-icon teal"><svg class="icon"><use href="#i-image"/></svg></span><span><strong>图集 / 画师</strong><small>Pixiv、X、Reddit…</small></span></button>
+            <button class="quick-card" data-quick="article"><span class="quick-icon violet"><svg class="icon"><use href="#i-article"/></svg></span><span><strong>文章转 Markdown</strong><small>去广告、留正文</small></span></button>
+            <button class="quick-card" data-quick="file"><span class="quick-icon blue"><svg class="icon"><use href="#i-file"/></svg></span><span><strong>直链文件</strong><small>断点续传、限速</small></span></button>
+          </div>
+
+          <div class="section-head"><h2>进行中</h2><span class="muted" id="activeCount">暂无任务</span></div>
+          <div id="activeList" class="job-list"></div>
+
+          <div class="section-head"><h2>最近下载</h2><button class="link-btn" data-view="history">查看全部<svg class="icon"><use href="#i-external"/></svg></button></div>
+          <div id="recentList" class="recent-list"></div>
+        </section>
+
+        <section id="view-tasks" class="view">
+          <div class="section-head"><h2>全部任务</h2><button id="clearTasks" class="btn ghost small"><svg class="icon"><use href="#i-trash"/></svg>清除已结束</button></div>
+          <div id="allJobs" class="job-list"></div>
+        </section>
+
+        <section id="view-history" class="view">
+          <div class="card history-card">
+            <div class="section-head"><h2>下载历史</h2><button id="refreshHistory" class="btn ghost small"><svg class="icon"><use href="#i-refresh"/></svg>刷新</button></div>
+            <div id="historyList" class="history-list"></div>
+          </div>
+        </section>
+
+        <section id="view-settings" class="view">
+          <div class="settings-grid">
+            <div class="card">
+              <h2 class="card-title">下载设置</h2>
+              <label class="field"><span>代理地址</span><input id="setProxy" placeholder="http://127.0.0.1:7890"></label>
+              <label class="field"><span>默认保存目录</span><div class="with-btn"><input id="setRoot" placeholder="downloads"><button id="browseRoot" class="icon-btn sm"><svg class="icon"><use href="#i-folder"/></svg></button></div></label>
+              <label class="field"><span>默认 Cookie 浏览器</span><select id="setBrowser"><option value="edge">Edge</option><option value="chrome">Chrome</option><option value="firefox">Firefox</option><option value="brave">Brave</option></select></label>
+              <label class="check"><input type="checkbox" id="setDates"><span>按日期建立子目录</span></label>
+              <label class="check"><input type="checkbox" id="setMetadata"><span>嵌入元数据</span></label>
+              <div class="form-actions"><button id="saveSettings" class="btn primary">保存设置</button><span id="saveState" class="muted"></span></div>
+            </div>
+            <div class="card">
+              <h2 class="card-title">运行状态</h2>
+              <div id="settingsEngines" class="settings-engines"></div>
+              <div class="kv"><span>磁盘可用</span><strong id="diskFree">—</strong></div>
+              <div class="kv"><span>代理</span><strong id="settingsProxy">—</strong></div>
+              <div class="kv"><span>版本</span><strong id="appVersion">1.1.0</strong></div>
+              <p class="fineprint">更新引擎：在项目目录运行 <code>dl.cmd update</code>。安装/修复：运行 <code>setup.ps1</code>。</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

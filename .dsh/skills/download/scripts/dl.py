@@ -108,6 +108,26 @@ class DlError(RuntimeError):
     pass
 
 
+class Progress:
+    """Best-effort JSON progress file consumed by the desktop UI."""
+
+    def __init__(self, path: str | None):
+        self.path = Path(path) if path else None
+
+    def write(self, **fields) -> None:
+        if not self.path:
+            return
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            data = {k: v for k, v in fields.items() if v is not None}
+            data["ts"] = round(time.time(), 3)
+            tmp = self.path.with_name(self.path.name + ".tmp")
+            tmp.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+            os.replace(tmp, self.path)
+        except OSError:
+            pass
+
+
 @dataclass
 class Result:
     url: str
@@ -407,7 +427,7 @@ def probe(url: str, proxy: str | None, timeout: int = 25, insecure: bool = False
 # engine runners
 # --------------------------------------------------------------------------- #
 
-def run_stream(cmd: list[str], env: dict, cwd: Path, mode: str, verbose: bool, timeout: int | None = None) -> tuple[int, list[str]]:
+def run_stream(cmd: list[str], env: dict, cwd: Path, mode: str, verbose: bool, timeout: int | None = None, progress: Progress | None = None) -> tuple[int, list[str]]:
     if verbose:
         eprint("[cmd] " + " ".join(cmd))
     try:
@@ -431,6 +451,10 @@ def run_stream(cmd: list[str], env: dict, cwd: Path, mode: str, verbose: bool, t
         if not line:
             continue
         lines.append(line)
+        if progress and "[download]" in line:
+            m = re.search(r"\[download\]\s+([\d.]+)%", line)
+            if m:
+                progress.write(phase="download", percent=float(m.group(1)))
         if verbose or any(k in line for k in interesting):
             print(f"  {line}", flush=True)
         if timeout and time.time() - started > timeout:
@@ -537,12 +561,15 @@ def download_video(url: str, out: Path, proxy: str | None, cfg: dict, opts: argp
     cmd += ["-o", template, "--", url]
 
     print(f"[video] yt-dlp -> {out}")
-    code, lines = run_stream(cmd, subprocess_env(proxy), ROOT, "yt-dlp", opts.verbose)
+    progress = Progress(opts.progress_file)
+    progress.write(phase="video", percent=0)
+    code, lines = run_stream(cmd, subprocess_env(proxy), ROOT, "yt-dlp", opts.verbose, progress=progress)
     files = parse_printed_paths(lines, out) or collect_new_files(out, started_ts)
     files = list(dict.fromkeys(p.resolve() for p in files if p.exists()))
     if code != 0:
         tail = "\n".join(lines[-12:])
         raise DlError(f"yt-dlp exited {code}\n{tail}")
+    progress.write(phase="done", percent=100)
     return Result(url, "audio" if opts.quality == "audio" else "video", True, out, files,
                   sum(p.stat().st_size for p in files), time.time() - started_ts)
 
@@ -567,13 +594,16 @@ def download_images(url: str, out: Path, proxy: str | None, cfg: dict, opts: arg
         cmd = [c for c in cmd if c not in ("--download-archive", str(STATE / "gallery-archive.sqlite3"))]
     cmd += ["--", url]
     print(f"[images] gallery-dl -> {out}")
-    code, lines = run_stream(cmd, subprocess_env(proxy), ROOT, "gallery-dl", opts.verbose)
+    progress = Progress(opts.progress_file)
+    progress.write(phase="images", percent=0)
+    code, lines = run_stream(cmd, subprocess_env(proxy), ROOT, "gallery-dl", opts.verbose, progress=progress)
     files = collect_new_files(out, started_ts)
     if code != 0:
         tail = "\n".join(lines[-12:])
         raise DlError(f"gallery-dl exited {code}\n{tail}")
     if not files:
         raise DlError("gallery-dl finished but produced no new files (login/cookies may be required)")
+    progress.write(phase="done", percent=100)
     return Result(url, "images", True, out, files, sum(p.stat().st_size for p in files),
                   time.time() - started_ts)
 
@@ -604,11 +634,14 @@ def download_with_aria2(url: str, out: Path, proxy: str | None, opts: argparse.N
         return download_file(url, out, proxy, opts, name=name, info=info)
     cmd = aria2_cmd(proxy, out) + ["--out", name, url]
     print(f"[file] aria2 -> {out / name}")
-    code, lines = run_stream(cmd, subprocess_env(proxy), ROOT, "aria2", opts.verbose)
+    progress = Progress(opts.progress_file)
+    progress.write(phase="file", percent=0, done=0, total=info.length)
+    code, lines = run_stream(cmd, subprocess_env(proxy), ROOT, "aria2", opts.verbose, progress=progress)
     dest = out / name
     if code != 0 or not dest.exists():
         eprint(f"[warn] aria2 failed (exit {code}); falling back to Python downloader")
         return download_file(url, out, proxy, opts, name=name, info=info)
+    progress.write(phase="done", percent=100, done=dest.stat().st_size, total=dest.stat().st_size)
     return dest
 
 
@@ -630,9 +663,11 @@ def download_file(
     dest = out / filename
     part = out / (filename + ".part")
     total = info.length
+    progress = Progress(opts.progress_file)
     if dest.exists() and not opts.force:
         if not total or dest.stat().st_size == total:
             print(f"[file] already complete: {dest} ({human(dest.stat().st_size)})")
+            progress.write(phase="done", percent=100, done=dest.stat().st_size, total=dest.stat().st_size)
             return dest
     headers = {"User-Agent": UA, "Accept": "*/*", "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8"}
     resume = part.exists() and part.stat().st_size > 0 and not opts.force
@@ -641,11 +676,13 @@ def download_file(
     opener = build_opener(proxy, opts.insecure)
     req = urllib.request.Request(url, headers=headers)
     print(f"[file] {'resume' if resume else 'download'} -> {dest}")
+    progress.write(phase="file", percent=None, done=0, total=total)
     try:
         resp = opener.open(req, timeout=60)
     except urllib.error.HTTPError as exc:
         if exc.code == 416 and part.exists():
             part.replace(dest)
+            progress.write(phase="done", percent=100, done=dest.stat().st_size, total=dest.stat().st_size)
             return dest
         raise DlError(f"HTTP {exc.code} for {url}") from exc
     with resp:
@@ -668,6 +705,8 @@ def download_file(
                 now = time.time()
                 if now - last >= 1.0:
                     speed = done / max(now - started, 0.001)
+                    progress.write(phase="file", percent=(done * 100 / total if total else None),
+                                   done=done, total=total, speed=round(speed))
                     if total:
                         pct = done * 100 / total
                         print(f"\r  {pct:5.1f}%  {human(done)}/{human(total)}  {human(speed)}/s", end="", flush=True)
@@ -685,6 +724,7 @@ def download_file(
     if total and part.stat().st_size < total:
         raise DlError(f"incomplete download: {human(part.stat().st_size)} of {human(total)}")
     part.replace(dest)
+    progress.write(phase="done", percent=100, done=dest.stat().st_size, total=dest.stat().st_size)
     return dest
 
 
@@ -707,6 +747,8 @@ def download_article(url: str, out: Path, proxy: str | None, opts: argparse.Name
     except Exception as exc:
         raise DlError(f"trafilatura is not installed: {exc}") from exc
     print(f"[article] fetch + extract -> {out}")
+    progress = Progress(opts.progress_file)
+    progress.write(phase="article", percent=10)
     try:
         req = urllib.request.Request(
             url, headers={"User-Agent": UA, "Accept": "text/html,application/xhtml+xml",
@@ -753,6 +795,7 @@ def download_article(url: str, out: Path, proxy: str | None, opts: argparse.Name
                 front.append(f"{key}: {json.dumps(str(val), ensure_ascii=False)}")
     front += [f"fetched: {datetime.now().isoformat(timespec='seconds')}", "---", ""]
     path.write_text("\n".join(front) + body.strip() + "\n", encoding="utf-8")
+    progress.write(phase="done", percent=100)
     return Result(url, "article", True, out, [path], path.stat().st_size,
                   time.time() - started_ts, title=str(title))
 
@@ -777,11 +820,14 @@ def download_torrent(url: str, out: Path, proxy: str | None, opts: argparse.Name
         cmd += ["--all-proxy", proxy]
     cmd += [target]
     print(f"[torrent] aria2 -> {out}")
-    code, lines = run_stream(cmd, subprocess_env(proxy), ROOT, "torrent", opts.verbose)
+    progress = Progress(opts.progress_file)
+    progress.write(phase="torrent", percent=0)
+    code, lines = run_stream(cmd, subprocess_env(proxy), ROOT, "torrent", opts.verbose, progress=progress)
     files = collect_new_files(out, started_ts)
     if code != 0 and not files:
         tail = "\n".join(lines[-12:])
         raise DlError(f"aria2 torrent exited {code}\n{tail}")
+    progress.write(phase="done", percent=100)
     return Result(url, "torrent", True, out, files, sum(p.stat().st_size for p in files),
                   time.time() - started_ts)
 
@@ -918,6 +964,7 @@ def add_common(p: argparse.ArgumentParser) -> None:
     p.add_argument("--no-proxy", action="store_true", help="connect directly")
     p.add_argument("--insecure", action="store_true", help="skip TLS verification (unsafe)")
     p.add_argument("--limit-rate", help="e.g. 2M")
+    p.add_argument("--progress-file", help=argparse.SUPPRESS)
     p.add_argument("--dry-run", action="store_true", help="show the engine and destination only")
     p.add_argument("--json", action="store_true", help="print a JSON summary")
     p.add_argument("-v", "--verbose", action="store_true")

@@ -2,7 +2,7 @@
 
 这个项目把「给一个链接，快速、正确地保存到本地」做成了一条命令。它自动判断内容类型，选择最合适的引擎，复用本机代理，支持断点续传、去重归档和下载历史。
 
-当前版本：**v1.0.0**（2026-11-01）。版本记录见 `CHANGELOG.md`，下一版规划见 `ROADMAP.md`。
+当前版本：**v1.1.0**（2026-11-01）。版本记录见 `CHANGELOG.md`，下一版规划见 `ROADMAP.md`。
 
 ## 从仓库重建
 
@@ -27,7 +27,7 @@ powershell -ExecutionPolicy Bypass -File .\setup.ps1 -Check
 
 ## 版本管理
 
-- 主分支 `main`；当前提交对应标签 `v1.0.0`。
+- 主分支 `main`；当前提交对应标签 `v1.1.0`。
 - 每次可交付的迭代更新 `CHANGELOG.md` 并打语义化版本标签。
 - 远程仓库地址在首次推送时写入 `origin`；规划见 `ROADMAP.md`。
 
@@ -55,6 +55,26 @@ dl.cmd "https://en.wikipedia.org/wiki/Download"
 ```
 
 第一条命令把内容下到 `downloads\YYYY-MM-DD\`，第二条自动识别为文章并保存为 Markdown。
+
+## 桌面应用
+
+双击桌面上的「下载工作台」，或运行：
+
+```bat
+gui.cmd
+```
+
+会打开一个独立的 Edge 应用窗口（没有地址栏），左侧是导航，中间是链接输入、类型、画质和高级选项，下方实时显示任务进度、日志、历史与设置。
+
+在新机器上生成桌面快捷方式：
+
+```bat
+powershell -ExecutionPolicy Bypass -File .\scripts\create_shortcut.ps1
+```
+
+界面采用本地 HTML/CSS/JS + Edge `--app` 模式，下载逻辑仍由 Python 执行；关闭窗口即结束本次会话。桌面快捷方式指向 `pythonw.exe`，不会闪黑框。
+
+![FetchDesk 桌面界面](docs/screenshot.png)
 
 ### 指定类型
 
@@ -100,7 +120,11 @@ dl.cmd get "https://a.example/1.zip" "https://b.example/2.zip" --flat
 F:\work\download\
 ├─ dl.cmd                         # 唯一入口（自动设置 PATH / PYTHONPATH）
 ├─ setup.ps1                      # 新机器一键重建依赖
+├─ gui.cmd                        # 桌面版启动器（pythonw）
+├─ gui\                           # HTML/CSS/JS 界面与图标
 ├─ scripts\bootstrap.py           # setup.ps1 的实现（Python 标准库）
+├─ scripts\gui.py                 # 本地 API + Edge 应用窗口
+├─ scripts\create_shortcut.ps1    # 生成桌面快捷方式
 ├─ requirements.txt               # Python 引擎版本下限
 ├─ config.json                    # 代理、下载根目录、命名模板
 ├─ config\gallery-dl.json         # gallery-dl 重试与断点配置
@@ -161,6 +185,7 @@ F:\work\download\
 | Wikimedia 图片 | `images ...png` | 219.3 KB，gallery-dl 成功 |
 | HTTP 直链 | `file http://example.com` | aria2 577 B |
 | 代理检查 | `doctor` | TCP OK / HTTP 204 |
+| 桌面 UI | `gui.cmd` / 桌面快捷方式 | 本地 API、任务、进度、历史通过；Edge 窗口需普通桌面会话 |
 
 > 测试文件已清理，避免占用空间；命令和结果保留在此表中。
 

@@ -1,8 +1,34 @@
-﻿# Changelog
+# Changelog
 
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 semantic versioning.
+
+## [1.1.0] - 2026-11-01
+
+### Added
+- FetchDesk desktop UI: sidebar navigation, URL hero, mode chips, quality and
+  advanced options, live job progress, log tail, history, settings, theme
+  toggle, and a custom app icon.
+- `--progress-file` on every download command, writing atomic JSON progress
+  records for the UI (direct files, yt-dlp, gallery-dl, articles, torrents).
+- `scripts/gui.py`: local HTTP API plus an Edge `--app` window with a dedicated
+  profile, so the UI has no address bar and closes back to the desktop.
+- `scripts/create_shortcut.ps1` and `gui.cmd`; a desktop shortcut named
+  「下载工作台」 is generated with the bundled icon.
+- `scripts/make_icon.py` for regenerating the PNG/ICO artwork.
+
+### Changed
+- `dl.py` now reports progress independently of stdout, keeping the CLI output
+  readable while the GUI gets structured updates.
+
+### Notes
+- The GUI is deliberately not a pywebview/pythonnet app: those need process
+  handle access that the DSH sandbox denies. Edge app mode is the stable
+  desktop target here.
+- API, static assets, job execution, progress, and history were verified
+  headlessly. The Edge window itself must be launched in a normal desktop
+  session; the sandbox blocks Edge's process broker.
 
 ## [1.0.0] - 2026-11-01
 

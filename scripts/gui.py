@@ -34,7 +34,7 @@ GUI_STATE = STATE / "gui"
 CONFIG = ROOT / "config.json"
 GUI_DIR = ROOT / "gui"
 LOG = STATE / "gui.log"
-VERSION = "2.0.1"
+VERSION = "2.0.2"
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 if str(PYLIBS) not in sys.path:

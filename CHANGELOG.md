@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 semantic versioning.
 
+## [2.0.2] - 2026-11-02
+
+### Fixed
+- Bumped the Scout report cache schema. The v2.0.1 Chinese-skill fixes were
+  masked by 24-hour-old cached reports that still contained zero skills; the
+  new schema forces a fresh search for existing goals.
+
 ## [2.0.1] - 2026-11-02
 
 ### Fixed

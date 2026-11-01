@@ -38,6 +38,7 @@ DSH_HOME = Path(os.environ.get("DSH_HOME") or (Path.home() / ".dsh"))
 PLUGIN_REGISTRY_URL = "https://awesome-dsh-plugin.com/plugins.json"
 UA = "FetchDesk-Scout/2.0"
 CACHE_TTL = 24 * 3600
+CACHE_SCHEMA = "2.0.2"
 PLUGIN_TTL = 24 * 3600
 MAX_REPOS = 9
 MAX_CODE_RESULTS = 10
@@ -1152,7 +1153,7 @@ def search_plugins(goal: str, terms: list[str], http: HttpClient, refresh: bool,
 # --------------------------------------------------------------------------- #
 
 def cache_key(goal: str, limit: int) -> str:
-    return hashlib.sha1(f"{goal.strip().lower()}|{limit}".encode("utf-8")).hexdigest()
+    return hashlib.sha1(f"{CACHE_SCHEMA}|{goal.strip().lower()}|{limit}".encode("utf-8")).hexdigest()
 
 
 def load_cache(key: str, ttl: int = CACHE_TTL) -> dict | None:

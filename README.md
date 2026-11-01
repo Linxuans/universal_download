@@ -9,7 +9,7 @@
 仓库不保存 `tools/` 里的二进制和 Python 包。新机器克隆后执行：
 
 ```bat
-git clone <your-repo-url> download
+git clone https://github.com/Linxuans/universal_download.git download
 cd download
 powershell -ExecutionPolicy Bypass -File .\setup.ps1
 ```
@@ -29,7 +29,7 @@ powershell -ExecutionPolicy Bypass -File .\setup.ps1 -Check
 
 - 主分支 `main`；当前提交对应标签 `v1.1.0`。
 - 每次可交付的迭代更新 `CHANGELOG.md` 并打语义化版本标签。
-- 远程仓库地址在首次推送时写入 `origin`；规划见 `ROADMAP.md`。
+- 远程仓库：<https://github.com/Linxuans/universal_download>；规划见 `ROADMAP.md`。
 
 ## 已安装并验证
 

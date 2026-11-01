@@ -15,7 +15,7 @@
 - 无头验证 API、静态资源、任务执行、进度和历史；GUI 窗口在普通桌面会话启动。
 
 
-## v2.0 — Skill / 插件侦察与生成（Scout）
+## v2.0 — Skill / 插件侦察（Scout，v2.0 已完成只读推荐）
 
 ### 目标
 
@@ -106,7 +106,7 @@ Plugin：
 
 ### 里程碑
 
-1. v2.0：GitHub/npm 搜索 + 评分 + Markdown/JSON 报告（只读）。
+1. v2.0：GitHub/npm 搜索 + 评分 + Markdown/JSON 报告（已完成）。
 2. v2.1：skill 安装/校验、本地去重、缓存与 token。
 3. v2.2：插件 dry-run/安装、生成器、验收用例。
 

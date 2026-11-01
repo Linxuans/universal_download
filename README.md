@@ -2,7 +2,7 @@
 
 这个项目把「给一个链接，快速、正确地保存到本地」做成了一条命令。它自动判断内容类型，选择最合适的引擎，复用本机代理，支持断点续传、去重归档和下载历史。
 
-当前版本：**v1.1.0**（2026-11-01）。版本记录见 `CHANGELOG.md`，下一版规划见 `ROADMAP.md`。
+当前版本：**v2.0.0**（2026-11-02）。版本记录见 `CHANGELOG.md`，下一版规划见 `ROADMAP.md`。
 
 ## 从仓库重建
 
@@ -27,7 +27,7 @@ powershell -ExecutionPolicy Bypass -File .\setup.ps1 -Check
 
 ## 版本管理
 
-- 主分支 `main`；当前提交对应标签 `v1.1.0`。
+- 主分支 `main`；当前提交对应标签 `v2.0.0`。
 - 每次可交付的迭代更新 `CHANGELOG.md` 并打语义化版本标签。
 - 远程仓库：<https://github.com/Linxuans/universal_download>；规划见 `ROADMAP.md`。
 
@@ -114,6 +114,31 @@ dl.cmd get "https://a.example/1.zip" "https://b.example/2.zip" --flat
 
 `--name` 只能用于单个链接。
 
+## 发现（Scout）
+
+在桌面版左侧点「发现」，用一句话描述你要做的项目、功能和目的，Scout 会搜索并排序：
+
+1. **本地已有**：`.dsh/skills`、office 内置技能等，能复用就不重复安装。
+2. **GitHub Skills**：仓库搜索 + `filename:SKILL.md` 代码搜索，读取 SKILL.md 原文。
+3. **插件 / MCP**：DSH 插件目录（8,100+ 条）+ npm 补充；MCP 目标单独识别。
+
+命令行同样可用：
+
+```bat
+scout.cmd advise "下载 B 站视频并提取音频" --save
+scout.cmd skills "把 PDF 转成 Markdown" --limit 5
+scout.cmd plugins "postgres mcp"
+scout.cmd doctor
+```
+
+每项结果带：来源链接、分数、stars、更新时间、license、匹配理由、风险、安装/使用提示。`--json` 给自动化用，`--save` 写到 `reports\`。
+
+**v2.0 是只读的**：Scout 不会安装、启用或执行任何推荐内容。插件的能力标注（`shell`、`fs-write`、`network`）会作为风险展示，安装前必须人工确认。
+
+数据源：GitHub 仓库/代码搜索、SKILL.md 原文、`awesome-dsh-plugin.com/plugins.json`、npm registry。GitHub token 依次从 `GITHUB_TOKEN`、`.env`、Git Credential Manager 读取，只用于请求，不落盘、不回显。
+
+![Scout 推荐界面](docs/scout.png)
+
 ## 目录结构
 
 ```text
@@ -121,9 +146,11 @@ F:\work\download\
 ├─ dl.cmd                         # 唯一入口（自动设置 PATH / PYTHONPATH）
 ├─ setup.ps1                      # 新机器一键重建依赖
 ├─ gui.cmd                        # 桌面版启动器（pythonw）
+├─ scout.cmd                      # Scout CLI 启动器
 ├─ gui\                           # HTML/CSS/JS 界面与图标
 ├─ scripts\bootstrap.py           # setup.ps1 的实现（Python 标准库）
 ├─ scripts\gui.py                 # 本地 API + Edge 应用窗口
+├─ scripts\scout.py               # Scout 搜索、评分与报告
 ├─ scripts\create_shortcut.ps1    # 生成桌面快捷方式
 ├─ requirements.txt               # Python 引擎版本下限
 ├─ config.json                    # 代理、下载根目录、命名模板
@@ -134,6 +161,8 @@ F:\work\download\
 │  └─ references\
 │     ├─ sites.md                 # 各站点注意事项
 │     └─ troubleshooting.md       # 故障排查
+├─ .dsh\skills\scout\              # Scout 项目技能
+├─ tests\                          # 离线单元测试
 ├─ tools\
 │  ├─ pylibs\                     # yt-dlp / gallery-dl / trafilatura
 │  ├─ ffmpeg\bin\                 # ffmpeg.exe / ffprobe.exe
@@ -186,6 +215,7 @@ F:\work\download\
 | HTTP 直链 | `file http://example.com` | aria2 577 B |
 | 代理检查 | `doctor` | TCP OK / HTTP 204 |
 | 桌面 UI | `gui.cmd` / 桌面快捷方式 | 本地 API、任务、进度、历史通过；Edge 窗口需普通桌面会话 |
+| Scout | `scout.cmd advise "..."` | Excel 报表、PDF 转 Markdown、B 站下载均返回本地优先的推荐；只读 |
 
 > 测试文件已清理，避免占用空间；命令和结果保留在此表中。
 
@@ -199,6 +229,7 @@ dl.cmd doctor     # 体检
 - 升级包安装到 `tools\pylibs`，不污染系统 Python。
 - ffmpeg 或 aria2 需要更换时，直接替换 `tools\ffmpeg\bin` / `tools\aria2\aria2c.exe`。
 - 新增站点自动识别：编辑 `scripts\dl.py` 顶部的 `VIDEO_HOSTS` / `GALLERY_HOSTS`；不改也能用显式子命令。
+- Scout 的权重与数据源见 `.dsh\skills\scout\references\scoring.md`；插件目录缓存 24 小时，`--refresh` 可强制刷新。
 
 ## 关于「排名靠前的 skill」
 

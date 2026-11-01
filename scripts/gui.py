@@ -34,11 +34,21 @@ GUI_STATE = STATE / "gui"
 CONFIG = ROOT / "config.json"
 GUI_DIR = ROOT / "gui"
 LOG = STATE / "gui.log"
-VERSION = "1.1.0"
+VERSION = "2.0.0"
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 if str(PYLIBS) not in sys.path:
     sys.path.insert(0, str(PYLIBS))
+SCRIPTS = ROOT / "scripts"
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+try:
+    import scout as scout_core
+except Exception as exc:  # surfaced by the API method
+    scout_core = None
+    SCOUT_ERROR = exc
+else:
+    SCOUT_ERROR = None
 
 CREATE_NO_WINDOW = 0x08000000 if os.name == "nt" else 0
 
@@ -163,6 +173,26 @@ class Api:
     def _download_root(self) -> Path:
         value = Path(str(self.config.get("downloadRoot", "downloads")))
         return value if value.is_absolute() else ROOT / value
+
+    def scout(self, payload: dict) -> dict:
+        payload = payload or {}
+        goal = str(payload.get("goal") or "").strip()
+        if len(goal) < 2:
+            return {"ok": False, "error": "请描述你要做的项目或功能"}
+        if scout_core is None:
+            return {"ok": False, "error": f"Scout 未加载：{SCOUT_ERROR}"}
+        try:
+            result = scout_core.advise(
+                goal,
+                limit=int(payload.get("limit") or 5),
+                refresh=bool(payload.get("refresh")),
+                no_token=bool(payload.get("no_token")),
+            )
+        except Exception as exc:
+            log("scout failed: " + repr(exc))
+            return {"ok": False, "error": str(exc)}
+        result["ok"] = True
+        return result
 
     def save_config(self, payload: dict) -> dict:
         allowed = {

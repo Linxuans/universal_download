@@ -30,6 +30,7 @@
     <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
     <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7L12 3Z"/><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6"/><path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M9 7V4h6v3"/></symbol>
   </svg>
 
@@ -43,6 +44,7 @@
       <nav class="nav" aria-label="主导航">
         <button class="nav-item active" data-view="download"><svg class="icon"><use href="#i-download"/></svg><span>下载</span></button>
         <button class="nav-item" data-view="tasks"><svg class="icon"><use href="#i-film"/></svg><span>任务</span><em id="taskBadge" class="badge hidden">0</em></button>
+        <button class="nav-item" data-view="scout"><svg class="icon"><use href="#i-sparkles"/></svg><span>发现</span></button>
         <button class="nav-item" data-view="history"><svg class="icon"><use href="#i-history"/></svg><span>历史</span></button>
         <button class="nav-item" data-view="settings"><svg class="icon"><use href="#i-settings"/></svg><span>设置</span></button>
       </nav>
@@ -151,6 +153,27 @@
           <div id="allJobs" class="job-list"></div>
         </section>
 
+        <section id="view-scout" class="view">
+          <div class="scout-hero card">
+            <div class="eyebrow"><svg class="icon"><use href="#i-sparkles"/></svg>SCOUT · 只读推荐</div>
+            <h2>你要做一个什么项目？</h2>
+            <p>描述功能、平台和目的。Scout 会搜索 GitHub 高分 skill 和 DSH 插件，先给证据，再谈安装。</p>
+            <textarea id="scoutGoal" rows="3" placeholder="例如：我要每周自动汇总 B 站收藏视频，提取音频并生成摘要…"></textarea>
+            <div class="scout-examples">
+              <button data-example="下载 B 站视频并提取音频">下载 B 站视频并提取音频</button>
+              <button data-example="用 Excel 做销售报表并生成图表">Excel 报表 + 图表</button>
+              <button data-example="把 PDF 转成 Markdown 并保留图片">PDF 转 Markdown</button>
+              <button data-example="给项目接一个 PostgreSQL MCP">PostgreSQL MCP</button>
+            </div>
+            <div class="scout-actions">
+              <label class="check scout-check"><input type="checkbox" id="scoutRefresh"><span>忽略缓存</span></label>
+              <span class="muted" id="scoutState"></span>
+              <button id="scoutBtn" class="btn primary"><svg class="icon"><use href="#i-sparkles"/></svg>开始推荐</button>
+            </div>
+          </div>
+          <div id="scoutResults"><div class="scout-empty"><strong>结果会出现在这里</strong><p>先看「本地已有」，再看 GitHub skill 与插件；每一项都会带来源、分数和风险。</p></div></div>
+        </section>
+
         <section id="view-history" class="view">
           <div class="card history-card">
             <div class="section-head"><h2>下载历史</h2><button id="refreshHistory" class="btn ghost small"><svg class="icon"><use href="#i-refresh"/></svg>刷新</button></div>
@@ -174,7 +197,7 @@
               <div id="settingsEngines" class="settings-engines"></div>
               <div class="kv"><span>磁盘可用</span><strong id="diskFree">—</strong></div>
               <div class="kv"><span>代理</span><strong id="settingsProxy">—</strong></div>
-              <div class="kv"><span>版本</span><strong id="appVersion">1.1.0</strong></div>
+              <div class="kv"><span>版本</span><strong id="appVersion">2.0.0</strong></div>
               <p class="fineprint">更新引擎：在项目目录运行 <code>dl.cmd update</code>。安装/修复：运行 <code>setup.ps1</code>。</p>
             </div>
           </div>

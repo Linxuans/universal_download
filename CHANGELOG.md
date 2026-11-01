@@ -4,6 +4,28 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 semantic versioning.
 
+## [2.0.0] - 2026-11-02
+
+### Added
+- Scout v2.0: describes a project goal in natural language and recommends
+  high-star GitHub Agent Skills, DSH plugins/MCP servers, and local skills.
+- GitHub repository search plus `filename:SKILL.md` code search, with SKILL.md
+  frontmatter/body reading, license, stars, freshness, and risk checks.
+- Public DSH plugin registry (8,100+ entries) cached for 24 hours, npm fallback,
+  and MCP detection.
+- Intent-aware scoring: goal actions/platforms are required before a popular but
+  irrelevant repository can rank; local skills are surfaced first.
+- Markdown and JSON reports, 24h cache, `scout.cmd` CLI, `scout` project skill,
+  and a new "发现" view in the desktop UI.
+- Offline unit tests for query parsing, intent matching, frontmatter, and report
+  rendering.
+
+### Notes
+- Scout is read-only in v2.0. It never installs, enables, or executes a
+  recommended skill/plugin.
+- GitHub token is read from `GITHUB_TOKEN`, `.env`, or Git Credential Manager;
+  it is never written to disk or printed.
+
 ## [1.1.0] - 2026-11-01
 
 ### Added

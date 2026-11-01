@@ -113,9 +113,19 @@
     apiReady = true;
     applyTheme(localStorage.getItem("fetchdesk-theme") || "dark");
     bind();
+    const initial = new URLSearchParams(location.search).get("view") || (location.hash || "").replace(/^#/, "");
+    if (VIEW_META[initial]) setView(initial);
     refreshStatus();
     refreshJobs().then(refreshHistory);
     schedulePoll(600);
+    const params = new URLSearchParams(location.search);
+    const autoGoal = params.get("q");
+    if (autoGoal) {
+      $("#scoutGoal").value = autoGoal;
+      $("#scoutRefresh").checked = params.get("refresh") === "1";
+      setView("scout");
+      setTimeout(runScout, 350);
+    }
   }
 
   function schedulePoll(delay) {
@@ -378,6 +388,99 @@
     } catch (err) { toast(String(err), "bad"); }
   }
 
+  // ------------------------------------------------------------------ scout
+  function formatStars(value) {
+    const n = Number(value || 0);
+    if (!n) return "—";
+    return n >= 1000 ? (n / 1000).toFixed(1) + "k" : String(n);
+  }
+
+  function scoreClass(score) {
+    if (score >= 0.75) return "high";
+    if (score >= 0.55) return "mid";
+    return "";
+  }
+
+  function scoutCard(cand, index) {
+    const score = Number(cand.score || 0);
+    const isLocal = cand.kind === "local";
+    const url = String(cand.url || "");
+    const link = /^https?:/i.test(url)
+      ? `<a class="scout-link" href="${esc(url)}" target="_blank" rel="noreferrer">打开来源 ↗</a>`
+      : "";
+    const meta = [];
+    if (cand.stars) meta.push(`★ ${formatStars(cand.stars)}`);
+    if (cand.pushed_at) meta.push(String(cand.pushed_at).slice(0, 10));
+    if (cand.license) meta.push(cand.license);
+    if (cand.extra && cand.extra.version) meta.push("v" + cand.extra.version);
+    const reasons = (cand.reasons || []).slice(0, 4).map((r) => `<span class="scout-reason">${esc(r)}</span>`).join("");
+    const risks = (cand.risks || []).slice(0, 4).map((r) => `<div class="scout-risk">${esc(r)}</div>`).join("");
+    return `
+      <article class="scout-card ${index === 0 ? "top" : ""}">
+        <div class="scout-card-top">
+          <span class="scout-rank">${index + 1}</span>
+          <div class="scout-title"><strong title="${esc(cand.name)}">${esc(cand.name)}</strong><small>${esc(cand.source || cand.kind)}${isLocal ? " · 已安装" : ""}</small></div>
+          <span class="scout-score ${scoreClass(score)}">${Math.round(score * 100)}</span>
+        </div>
+        ${cand.description ? `<div class="scout-desc" title="${esc(cand.description)}">${esc(cand.description)}</div>` : ""}
+        <div class="scout-meta">${meta.map((m) => `<span class="scout-tag">${esc(m)}</span>`).join("")}</div>
+        ${reasons ? `<div class="scout-reasons">${reasons}</div>` : ""}
+        ${risks ? `<div class="scout-risks">${risks}</div>` : ""}
+        <div class="scout-install">${link}${cand.install ? `<code title="${esc(cand.install)}">${esc(cand.install)}</code>` : ""}</div>
+      </article>`;
+  }
+
+  function scoutSection(title, items, empty) {
+    if (!items || !items.length) return "";
+    return `
+      <div class="scout-result-head"><h2>${esc(title)}</h2><span>${items.length} 个候选</span></div>
+      <div class="scout-grid">${items.map(scoutCard).join("")}</div>`;
+  }
+
+  function renderScout(result) {
+    const stats = result.stats || {};
+    const warnings = (result.warnings || []).map((w) => `<div class="scout-warning">${esc(w)}</div>`).join("");
+    let html = `
+      <div class="scout-result-head">
+        <h2>推荐结果</h2>
+        <span>${result.cached ? "缓存 · " : ""}${stats.seconds || 0}s · API ${stats.api_calls || 0} 次</span>
+      </div>`;
+    if (warnings) html += `<div class="scout-warnings">${warnings}</div>`;
+    html += scoutSection("本地已有 · 优先复用", result.local);
+    html += scoutSection("GitHub Skills", result.skills);
+    html += scoutSection("插件 / MCP", result.plugins);
+    if (!result.local?.length && !result.skills?.length && !result.plugins?.length) {
+      html += `<div class="scout-empty"><strong>没有找到足够匹配的结果</strong><p>换一种更具体的描述，或者让我为这个项目写一个新的 skill。</p></div>`;
+    }
+    if (result.suggest_generate) {
+      html += `<div class="scout-empty"><strong>建议自己写一个 skill</strong><p>现有结果没有过线。v2.2 会提供生成器；现在可以先把输入/输出/验证方式说清楚。</p></div>`;
+    }
+    $("#scoutResults").innerHTML = html;
+  }
+
+  async function runScout() {
+    const goal = $("#scoutGoal").value.trim();
+    if (goal.length < 2) { $("#scoutGoal").focus(); toast("先描述你要做的事", "bad"); return; }
+    const btn = $("#scoutBtn");
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span>正在搜索`;
+    $("#scoutState").textContent = "扫描 GitHub 与 DSH 插件目录…";
+    $("#scoutResults").innerHTML = `<div class="scout-loading"><span class="spinner"></span>正在读取证据，通常需要 10–40 秒</div>`;
+    try {
+      const result = await api("scout", { goal, refresh: $("#scoutRefresh").checked });
+      if (!result || !result.ok) throw new Error(result && result.error ? result.error : "搜索失败");
+      renderScout(result);
+      $("#scoutState").textContent = "";
+    } catch (err) {
+      $("#scoutResults").innerHTML = `<div class="scout-empty">${esc(err.message || String(err))}</div>`;
+      $("#scoutState").textContent = "失败";
+      toast(err.message || String(err), "bad");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<svg class="icon"><use href="#i-sparkles"/></svg>开始推荐`;
+    }
+  }
+
   // ------------------------------------------------------------------ settings
   function fillSettings(status) {
     const c = status.config || {};
@@ -411,6 +514,7 @@
   const VIEW_META = {
     download: ["下载", "把链接变成文件，引擎自动选择。"],
     tasks: ["任务", "查看进度、日志和已完成的任务。"],
+    scout: ["发现", "描述目标，先看证据，再决定安装什么。"],
     history: ["历史", "每一次下载的落点与结果。"],
     settings: ["设置", "代理、目录和引擎状态。"],
   };
@@ -463,6 +567,17 @@
     $("#clearTasks").addEventListener("click", async () => {
       try { await api("clear_finished"); await refreshJobs(); toast("已清理结束任务", "ok"); }
       catch (err) { toast(String(err), "bad"); }
+    });
+    $("#scoutBtn").addEventListener("click", runScout);
+    $$(".scout-examples button").forEach((btn) => btn.addEventListener("click", () => {
+      $("#scoutGoal").value = btn.dataset.example || "";
+      $("#scoutGoal").focus();
+    }));
+    $("#scoutGoal").addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        runScout();
+      }
     });
     $("#saveSettings").addEventListener("click", saveSettings);
     $("#themeBtn").addEventListener("click", () => {

@@ -1,0 +1,10 @@
+{
+  "extractor": {
+    "retries": 4,
+    "timeout": 30
+  },
+  "downloader": {
+    "part": true,
+    "progress": 1.0
+  }
+}

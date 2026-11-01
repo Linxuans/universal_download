@@ -1,0 +1,8 @@
+downloads/
+state/
+tools/pylibs/
+tools/ffmpeg/
+tools/aria2/
+.tmp/
+__pycache__/
+*.pyc

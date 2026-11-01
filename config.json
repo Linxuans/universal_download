@@ -1,0 +1,12 @@
+{
+  "proxy": "http://127.0.0.1:7890",
+  "autoProxy": true,
+  "downloadRoot": "downloads",
+  "dateSubfolders": true,
+  "browser": "edge",
+  "retries": 10,
+  "fragments": 4,
+  "videoTemplate": "%(uploader,channel,creator|Unknown)s/%(title).150B [%(id)s].%(ext)s",
+  "embedMetadata": true,
+  "writeSubtitles": false
+}
